@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jogo da Memória - LIBRAS</title>
+
+  <style>
+    /* Reset / box model */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --primary: #0056a3;
+      --muted: #e9ecef;
+      --accent: #ffc107;
+      --bg: #f4f4f9;
+      --card: #ffffff;
+      --text: #222;
+      --radius: 8px;
+      --max-width: 1100px;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      /* gradiente de fundo à direita; imagem sinal será um elemento fixo separado */
+      background: linear-gradient(to right, var(--bg) 0%, rgba(244,244,249,0.95) 60%);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      padding-bottom: 70px; /* espaço para o rodapé fixo */
+    }
+
+    /* fundo fixo em elemento separado para evitar que role junto com o conteúdo */
+    .bg-sinal {
+      position: fixed;
+      left: 0;
+      bottom: 0; /* fixa a imagem na base da janela */
+      width: 28vw;
+      height: 30vh; /* altura fixa para garantir visibilidade */
+      background-image: url('sinal.png');
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: left bottom;
+      pointer-events: none; /* permite clicar normalmente nos elementos da página */
+      z-index: 9999; /* acima de todo o conteúdo */
+      opacity: 1; /* totalmente opaca */
+    }
+
+    /* garantir que o conteúdo principal fique acima da imagem */
+    .container,
+    header,
+    nav,
+    main,
+    aside {
+      position: relative;
+      z-index: 1;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1; /* mantém o footer abaixo da imagem fixa */
+    }
+
+    header {
+      background: url('banner.jpg') center/cover no-repeat;
+      color: #fff;
+      padding: 3rem 1rem;
+      text-align: center;
+      position: relative;
+    }
+    
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1;
+    }
+
+    header h1, header p {
+      position: relative;
+      z-index: 2;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    header h1 { margin: 0 0 .25rem 0; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .95; font-size: .95rem; }
+
+    nav {
+      background: var(--muted);
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: .6rem 1rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(0,0,0,.05);
+    }
+
+    nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      padding: .45rem .75rem;
+      border-radius: 6px;
+      transition: background .18s, color .18s, transform .08s;
+    }
+    nav a:hover,
+    nav a:focus { background: rgba(0,86,163,.06); color: var(--primary); outline: none; transform: translateY(-1px); }
+
+    .container {
+      max-width: var(--max-width);
+      margin: 1.5rem auto;
+      padding: 0 1rem;
+    }
+
+    main {
+      background: var(--card);
+      padding: 1rem 1.125rem;
+      border-radius: var(--radius);
+      box-shadow: 0 6px 18px rgba(25, 25, 45, 0.06);
+      text-align: center;
+    }
+
+    /* Significados */
+    ul { list-style: none; padding: 0; margin: 1rem auto; max-width: 350px; text-align: left; }
+    ul li { margin: 6px 0; font-size: 1rem; }
+
+    #matchWord {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--primary);
+      margin: 10px 0 20px;
+    }
+
+    /* Grid de cartas */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 15px;
+      justify-items: center;
+      margin: 30px auto;
+      max-width: 450px;
+    }
+
+    .card-game {
+      width: 100px;
+      height: 60px;
+      background: #e6f0fa;
+      border-radius: 8px;
+      border: 2px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: transform 0.3s, background 0.3s;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    }
+    .card-game.flipped { background: #fff; color: var(--primary); transform: rotateY(180deg); }
+    .card-game:hover { transform: scale(1.07); }
+
+    /* Botão voltar */
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 15px;
+      background: var(--primary);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background .3s;
+    }
+    .btn:hover { background: #003f7a; }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #1a1a1a;
+      color: #fff;
+      text-align: center;
+      padding: .9rem 0;
+      font-size: .92rem;
+      z-index: 1000;
+    }
+    
+    /* bloco visual do jogo */
+    .game-block {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff, #fbfdff);
+      border-radius: 12px;
+      box-shadow: 0 8px 28px rgba(10,20,40,0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .significados-list {
+      list-style: none;
+      padding: 0;
+      max-width: 420px;
+      width: 100%;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .match-word {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+    
+    /* confetes emoji */
+    .confetti-wrap {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 99999;
+    }
+    .confetti {
+      position: absolute;
+      will-change: transform, opacity;
+      font-size: 32px;
+      transform: translateY(-20px) rotate(0deg);
+      animation: confetti-fall 2000ms linear forwards;
+    }
+    @keyframes confetti-fall {
+      0% { opacity: 1; transform: translateY(-10vh) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(120vh) rotate(1080deg); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Jogo da Memória - LIBRAS</h1>
+    <p>Treine sua memória e aprenda símbolos em LIBRAS</p>
+  </header>
+
+  <nav>
+    <a href="index.html">Início</a>
+     <a href="acessibilidade.html">♿ Acessibilidade</a>
+    <a href="artes.html">🎭 Arte e Inclusão</a>
+    <a href="jogo.html">🎮 Jogo da Memória</a>
+  </nav>
+
+  <main>
+    <div class="game-block">
+      <ul id="significados" class="significados-list">
+        <li id="sig-euteamo" style="display:none;">🤟 — Eu te amo</li>
+        <li id="sig-paz" style="display:none;">✌️ — Paz</li>
+        <li id="sig-tudobem" style="display:none;">👍 — Tudo bem</li>
+        <li id="sig-perfeito" style="display:none;">👌 — Perfeito</li>
+        <li id="sig-rock" style="display:none;">🤘 — Rock / Força</li>
+        <li id="sig-oi" style="display:none;">👋 — Oi / Tchau</li>
+      </ul>
+
+      <div id="matchWord" class="match-word"></div>
+
+      <div class="grid" id="gameBoard"></div>
+
+      <div style="margin-top:18px;">
+        <a href="index.html" class="btn">⬅ Voltar</a>
+      </div>
+    </div>
+  </main>
+
+  <div class="confetti-wrap" id="confettiWrap" aria-hidden="true"></div>
+
+  <footer>
+    <p>© 2025 - Site educativo sobre LIBRAS e Inclusão | Projeto de aprendizado</p>
+  </footer>
+
+  <script>
+    const symbols = ['🤟','✌️','👍','👌','🤘','👋'];
+    const symbolNames = {
+      '🤟': 'Eu te amo',
+      '✌️': 'Paz',
+      '👍': 'Tudo bem',
+      '👌': 'Perfeito',
+      '🤘': 'Rock / Força',
+      '👋': 'Oi / Tchau'
+    };
+    const symbolToLiId = {
+      '🤟': 'sig-euteamo',
+      '✌️': 'sig-paz',
+      '👍': 'sig-tudobem',
+      '👌': 'sig-perfeito',
+      '🤘': 'sig-rock',
+      '👋': 'sig-oi'
+    };
+    let cards = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+    const board = document.getElementById('gameBoard');
+    let flipped = [];
+    let lock = false;
+    const matchWord = document.getElementById('matchWord');
+
+    cards.forEach(symbol => {
+      const card = document.createElement('div');
+      card.classList.add('card-game');
+      card.dataset.symbol = symbol;
+      card.addEventListener('click', () => flip(card));
+      board.appendChild(card);
+    });
+
+    function flip(card) {
+      if (lock || card.classList.contains('flipped')) return;
+      card.textContent = card.dataset.symbol;
+      card.classList.add('flipped');
+      flipped.push(card);
+
+      if (flipped.length === 2) {
+        lock = true;
+        setTimeout(check, 800);
+      }
+    }
+
+    function check() {
+      const [a, b] = flipped;
+      if (a.dataset.symbol !== b.dataset.symbol) {
+        a.textContent = '';
+        b.textContent = '';
+        a.classList.remove('flipped');
+        b.classList.remove('flipped');
+        matchWord.textContent = '';
+      } else {
+        matchWord.textContent = symbolNames[a.dataset.symbol] || '';
+        const liId = symbolToLiId[a.dataset.symbol];
+        if (liId) {
+          document.getElementById(liId).style.display = 'list-item';
+        }
+        // animação de confetes
+        createConfetti();
+        setTimeout(() => { matchWord.textContent = ''; }, 1800);
+      }
+      flipped = [];
+      lock = false;
+    }
+
+    // cria confetes emoji na tela
+    function createConfetti() {
+      const wrap = document.getElementById('confettiWrap');
+      const emojis = ['🎉','🎊','✨','🥳','🌟'];
+      for (let i = 0; i < 40; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        // posição horizontal aleatória
+        el.style.left = (Math.random() * 90 + 5) + '%';
+        // variação de tamanho
+        el.style.fontSize = (20 + Math.random() * 24) + 'px';
+        // atraso para espalhar
+        el.style.animationDelay = (Math.random() * 400) + 'ms';
+        wrap.appendChild(el);
+        // remover depois da animação
+        setTimeout(() => { el.remove(); }, 2400 + Math.random() * 800);
+      }
+    }
+  </script>
+</body>
+</html>

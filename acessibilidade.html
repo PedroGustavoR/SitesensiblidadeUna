@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sensibilidade</title>
+
+  <style>
+quero    /* Reset / box model */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --primary: #0056a3;
+      --muted: #e9ecef;
+      --accent: #ffc107;
+      --bg: #f4f4f9;
+      --card: #ffffff;
+      --text: #222;
+      --radius: 8px;
+      --max-width: 1100px;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      /* gradiente de fundo à direita; imagem sinal será um elemento fixo separado */
+      background: linear-gradient(to right, var(--bg) 0%, rgba(244,244,249,0.95) 60%);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: block;
+    }
+
+    /* fundo fixo em elemento separado para evitar que role junto com o conteúdo */
+    .bg-sinal {
+      position: fixed;
+      left: 0;
+      bottom: 0; /* fixa a imagem na base da janela */
+      width: 28vw;
+      height: 30vh; /* altura fixa para garantir visibilidade */
+      background-image: url('sinal.png');
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: left bottom;
+      pointer-events: none; /* permite clicar normalmente nos elementos da página */
+      z-index: 9999; /* acima de todo o conteúdo */
+      opacity: 1; /* totalmente opaca */
+    }
+
+    /* garantir que o conteúdo principal fique acima da imagem */
+    .container,
+    header,
+    nav,
+    main,
+    aside {
+      position: relative;
+      z-index: 1;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1; /* mantém o footer abaixo da imagem fixa */
+    }
+
+    header {
+      background: url('banner.jpg') center/cover no-repeat;
+      color: #fff;
+      padding: 3rem 1rem;
+      text-align: center;
+      position: relative;
+    }
+    
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1;
+    }
+
+    header h1, header p {
+      position: relative;
+      z-index: 2;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    header h1 { margin: 0; font-size: 1.7rem; }
+    header p { margin: .3rem 0 0; font-size: 1rem; opacity: 0.95; }
+
+    nav {
+      background: var(--muted);
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: .6rem 1rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(0,0,0,.05);
+    }
+
+    nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      padding: .45rem .75rem;
+      border-radius: 6px;
+      transition: background .18s, color .18s, transform .08s;
+    }
+    nav a:hover,
+    nav a:focus { background: rgba(0,86,163,.06); color: var(--primary); outline: none; transform: translateY(-1px); }
+
+    /* Layout container */
+    .container {
+      max-width: var(--max-width);
+      margin: 1.25rem auto;
+      padding: 0 1rem;
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+    }
+
+    main {
+      flex: 2 1 0%;
+      background: var(--card);
+      padding: 1rem 1.125rem;
+      border-radius: var(--radius);
+      box-shadow: 0 6px 18px rgba(25, 25, 45, 0.06);
+      min-width: 0; /* important for overflow in flex */
+    }
+
+    h2 { margin-top: 0; color: var(--primary); font-size: 1.15rem; }
+    p { margin: .6rem 0; font-size: .99rem; }
+
+    .highlight {
+      margin: 1rem 0;
+      padding: .85rem;
+      background: #fff8e1;
+      border-left: 5px solid var(--accent);
+      border-radius: 6px;
+      font-size: .98rem;
+    }
+
+    footer {
+      margin: 1.25rem 0 0 0;
+      background: #1a1a1a;
+      color: #fff;
+      text-align: center;
+      padding: .9rem 0;
+      font-size: .92rem;
+    }
+
+    aside.relacionado {
+      flex: 1 0 260px;
+      max-width: 260px;
+      background: #fff;
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+
+    aside.relacionado h3 {
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+      color: #004aad;
+    }
+
+    .relacionado-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    .rel-card {
+      background: #f9f9f9;
+      border-radius: 10px;
+      padding: 8px;
+      transition: transform 0.2s;
+    }
+
+    .rel-card:hover {
+      transform: scale(1.03);
+    }
+
+    .rel-card img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    .rel-card a {
+      display: block;
+      font-weight: 600;
+      color: #004aad;
+      text-decoration: none;
+      margin: 4px 0;
+    }
+
+    .rel-card a:hover {
+      text-decoration: underline;
+    }
+
+    .rel-card p {
+      font-size: 0.85rem;
+      color: #555;
+      margin: 0;
+    }
+
+    /* botão azul para voltar */
+    .btn {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.2s ease;
+    }
+    .btn:hover {
+      background: #003d75;
+    }
+
+    /* Responsividade */
+    @media (max-width: 900px) {
+      .container { flex-direction: column; }
+      aside.relacionado { order: 2; width: 100%; max-width: none; }
+      main { order: 1; }
+      nav { gap: .6rem; }
+      .relacionado-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1> Sensibilidade e Empatia</h1>
+    <p>Algumas ferramentas que pode te ajudar</p>
+  </header>
+  <nav>
+      <a href="index.html">Início</a>
+     <a href="acessibilidade.html">♿ Acessibilidade</a>
+    <a href="artes.html">🎭 Arte e Inclusão</a>
+    <a href="jogo.html">🎮 Jogo da Memória</a>
+  </nav>
+
+  <div class="container">
+    <main>
+      <h2 id="libras-title">Um pouco sobre empatia e alguns sinais de libras</h2>
+
+      <section style="margin-top: 1.5rem;">
+        <p>A comunicação é um direito básico, mas ainda há muitas barreiras que dificultam a interação entre pessoas surdas e ouvintes. Mesmo quando existe boa vontade, nem sempre sabemos como agir, como sinalizar ou como tornar a conversa mais clara. É aí que surgem as ferramentas digitais: tecnologias que funcionam como pontes, aproximando mundos e tornando a inclusão algo real no dia a dia.</p>
+
+        <p>Nos últimos anos, diversos aplicativos e plataformas têm sido criados para apoiar a comunicação em Libras e ajudar pessoas ouvintes a se aproximarem da comunidade surda com mais respeito e autonomia. Essas ferramentas não substituem o ensino formal da língua de sinais, mas oferecem recursos valiosos para situações cotidianas, para momentos de necessidade e até como primeiro contato com a língua.</p>
+
+        <p>Uma das ferramentas mais conhecidas é o Hand Talk, um aplicativo brasileiro que se tornou referência mundial. Nele, usuários podem digitar frases ou falar diretamente no microfone, e o aplicativo traduz para Libras por meio de um avatar 3D, o Hugo. Essa tradução visual ajuda não só pessoas surdas, mas também ouvintes que desejam aprender sinais e entender melhor como a língua funciona. Além disso, o Hand Talk possui uma extensão para navegadores que torna sites mais acessíveis, permitindo que textos sejam convertidos automaticamente para Libras enquanto a pessoa navega.</p>
+
+        <p>Mas o Hand Talk não está sozinho. Outras ferramentas também colaboram para tornar o ambiente mais inclusivo. Aplicativos que ensinam Libras por meio de jogos, vídeos e lições interativas ajudam iniciantes a aprender sinais básicos de forma leve e divertida. Plataformas de videointerpretação permitem que uma pessoa surda se comunique, em tempo real, com um intérprete que faz a ponte com o ouvinte — algo extremamente útil em situações como consultas médicas, repartições públicas ou atendimentos de emergência.</p>
+
+        <p>Essas tecnologias mostram que a inclusão não depende apenas de grandes mudanças estruturais, mas também de pequenas escolhas do dia a dia. Quando alguém usa um app para tentar sinalizar, mesmo que de forma simples, transmite respeito. Quando empresas instalam ferramentas de acessibilidade em seus sites ou treinem funcionários para lidar melhor com pessoas surdas, enviam a mensagem de que todos têm lugar ali.</p>
+
+        <p>No fundo, essas ferramentas digitais fazem algo maior do que traduzir palavras: elas aproximam pessoas. Ao facilitar a comunicação, reduzem a ansiedade, ampliam a autonomia e garantem que mais indivíduos possam participar plenamente da sociedade. A tecnologia, quando usada com empatia, transforma barreiras em portas.</p>
+
+        <p>E o mais importante: essas ferramentas são apenas o começo. Elas despertam curiosidade, incentivam o aprendizado de Libras e lembram que inclusão não é um gesto isolado — é um compromisso contínuo com o outro. Com cada nova forma de comunicar, ouvir e entender, construímos um ambiente mais humano, acessível e acolhedor.</p>
+
+        <div class="gif-container" style="margin: 1.5rem 0; text-align: center; background: #f5f5f5; padding: 20px; border-radius: 8px; min-height: 250px; display: flex; align-items: center; justify-content: center; color: #999;">
+          <img src="muitoobrigado.gif" alt="Ilustração sobre empatia" style="max-width: 100%; max-height: 300px;">
+        </div>
+
+      <a href="index.html" class="btn">⬅ Voltar</a>
+    </main>
+
+    <aside class="relacionado" aria-labelledby="rel-title">
+      <h3 id="rel-title">Relacionado</h3>
+      <div class="relacionado-grid">
+        <div class="rel-card">
+          <img src="emoji-libras-apple1017.jpg" alt="Jogo da Memória">
+          <a href="jogo.html">🎮 Jogo da Memória (LIBRAS)</a>
+          <p>Atividade interativa para aprender sinais.</p>
+        </div>
+
+        <div class="rel-card">
+          <img src="images (5).jfif" alt="Outras obras">
+          <a href="arte/outras.html">📚 Outras obras</a>
+          <p>Lista de filmes, peças e livros sobre inclusão.</p>
+        </div>
+
+        <div class="rel-card">
+          <img src="logo-ht-header.png" alt="Hand Talk">
+          <a href="https://www.handtalk.me/br" target="_blank">Hand Talk</a>
+          <p>Ferramenta de tradução automática.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <p>© 2025 - Site educativo sobre LIBRAS e Inclusão | Projeto de aprendizado</p>
+  </footer>
+</body>
+</html>
+
