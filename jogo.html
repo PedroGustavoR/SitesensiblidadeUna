@@ -128,8 +128,8 @@
     }
 
     /* Significados */
-    ul { list-style: none; padding: 0; margin: 1rem auto; max-width: 350px; text-align: left; }
-    ul li { margin: 6px 0; font-size: 1rem; }
+    ul { list-style: none; padding: 0; margin: 0.5rem auto 1.5rem; max-width: 420px; text-align: left; }
+    ul li { margin: 4px 0; font-size: 0.95rem; line-height: 1.4; }
 
     #matchWord {
       font-size: 1.2rem;
@@ -195,14 +195,14 @@
     .game-block {
       max-width: 760px;
       margin: 0 auto;
-      padding: 18px;
+      padding: 1.5rem;
       background: linear-gradient(180deg, #ffffff, #fbfdff);
       border-radius: 12px;
       box-shadow: 0 8px 28px rgba(10,20,40,0.06);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 0.8rem;
     }
 
     .significados-list {
@@ -210,8 +210,9 @@
       padding: 0;
       max-width: 420px;
       width: 100%;
-      margin: 0 auto;
+      margin: 0;
       text-align: left;
+      order: -1;
     }
 
     .match-word {
@@ -262,12 +263,12 @@
   <main>
     <div class="game-block">
       <ul id="significados" class="significados-list">
-        <li id="sig-euteamo" style="display:none;">🤟 — Eu te amo</li>
-        <li id="sig-paz" style="display:none;">✌️ — Paz</li>
-        <li id="sig-tudobem" style="display:none;">👍 — Tudo bem</li>
-        <li id="sig-perfeito" style="display:none;">👌 — Perfeito</li>
-        <li id="sig-rock" style="display:none;">🤘 — Rock / Força</li>
-        <li id="sig-oi" style="display:none;">👋 — Oi / Tchau</li>
+        <li id="sig-euteamo" style="display:none;">🤟 — Eu te amo (ao apontar).</li>
+        <li id="sig-paz" style="display:none;">✌️ — Cortar/Tesoura (ao abrir e fechar os dedos). </li>
+        <li id="sig-tudobem" style="display:none;">👍 — Bom/Legal (subindo a mão e o polegar) ou Aprovar/Aceitar/ok (Avançando a mão para frente).</li>
+        <li id="sig-perfeito" style="display:none;">👌 —  Detalhe/Detalhado (com ambas as mãos).</li>
+        <li id="sig-telefone" style="display:none;">🤙 —  Telefonar/Ligar (levando as mãos a orelha).</li>
+        <li id="sig-oi" style="display:none;">👋 — Oi / Tchau" (movendo a mão para os lados).</li>
       </ul>
 
       <div id="matchWord" class="match-word"></div>
@@ -287,21 +288,21 @@
   </footer>
 
   <script>
-    const symbols = ['🤟','✌️','👍','👌','🤘','👋'];
+    const symbols = ['🤟','✌️','👍','👌','🤙','👋'];
     const symbolNames = {
-      '🤟': 'Eu te amo',
-      '✌️': 'Paz',
-      '👍': 'Tudo bem',
-      '👌': 'Perfeito',
-      '🤘': 'Rock / Força',
-      '👋': 'Oi / Tchau'
+      '🤟': 'Eu te amo (ao apontar)',
+      '✌️': 'Cortar/Tesoura (ao abrir e fechar os dedos) ',
+      '👍': 'Bom/Legal (subindo a mão e o polegar) ou Aprovar/Aceitar/ok (Avançando a mão para frente)',
+      '👌': 'Detalhe/Detalhado (com ambas as mãos)',
+      '🤙': 'Telefonar/Ligar (levando as mãos a orelha)',
+      '👋': 'Oi / Tchau (movendo a mão para os lados)'
     };
     const symbolToLiId = {
       '🤟': 'sig-euteamo',
       '✌️': 'sig-paz',
       '👍': 'sig-tudobem',
       '👌': 'sig-perfeito',
-      '🤘': 'sig-rock',
+      '🤙': 'sig-telefone',
       '👋': 'sig-oi'
     };
     let cards = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
